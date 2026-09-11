@@ -1,0 +1,3 @@
+footer{background:#000;color:#fff;min-height:130px;padding:33px 5.8%;display:grid;grid-template-columns:1fr 1fr auto;align-items:start;gap:20px;font-size:14px}
+footer .footer-brand{font:400 25px 'Bebas Neue';letter-spacing:.5px}footer p{margin:5px 0;color:#d7d7d7}footer small{grid-column:1;font:10px 'DM Mono';color:#aaa;text-transform:uppercase}.socials{display:flex;gap:18px;font:500 14px 'Bebas Neue';text-transform:uppercase}.socials a{border-bottom:1px solid var(--yellow);padding-bottom:2px}
+@media(max-width:750px){footer{grid-template-columns:1fr;padding:30px 25px;gap:10px}footer small{grid-column:auto;margin-top:10px}}
