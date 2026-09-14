@@ -2,7 +2,7 @@ import { lazy, Suspense, useEffect, useState } from 'react';
 import type { FormEvent, ReactElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { supabase } from './supabase';
+import { api } from './api';
 import './styles.css';
 import './footer.css';
 import './mobile.css';
@@ -41,15 +41,17 @@ function ClinicSite(): ReactElement {
   const submitBooking = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
     const form = event.currentTarget;
-    if (!supabase) { setBookingMessage('Booking setup is incomplete. Please contact the clinic directly.'); return; }
     setBookingMessage('Sending your request…');
     const formData = new FormData(form);
-    const { error } = await supabase.from('bookings').insert({
-      owner_name: String(formData.get('owner_name') || ''), animal_name: String(formData.get('animal_name') || ''),
-      phone: String(formData.get('phone') || ''), service: String(formData.get('service') || ''),
-    });
-    if (error) { setBookingMessage('We could not send your request. Please try again or call us.'); return; }
-    form.reset(); setBookingMessage('Request received — we’ll contact you shortly.');
+    try {
+      await api.createBooking({
+        owner_name: String(formData.get('owner_name') || ''), animal_name: String(formData.get('animal_name') || ''),
+        phone: String(formData.get('phone') || ''), service: String(formData.get('service') || ''),
+      });
+      form.reset(); setBookingMessage('Request received — we’ll contact you shortly.');
+    } catch {
+      setBookingMessage('We could not send your request. Please try again or call us.');
+    }
   };
   return <main>
     <section className="hero" id="home">
