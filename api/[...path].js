@@ -14,6 +14,22 @@ const bookingSchema = new mongoose.Schema({
 const Admin = mongoose.models.Admin || mongoose.model('Admin', adminSchema);
 const Booking = mongoose.models.Booking || mongoose.model('Booking', bookingSchema);
 
+function escapeHtml(value) {
+  return String(value).replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#039;', '"': '&quot;' })[character]);
+}
+async function notifyAdminByEmail(booking) {
+  const { RESEND_API_KEY, BOOKING_NOTIFICATION_EMAIL, BOOKING_NOTIFICATION_FROM } = process.env;
+  if (![RESEND_API_KEY, BOOKING_NOTIFICATION_EMAIL, BOOKING_NOTIFICATION_FROM].every(Boolean)) return false;
+  const details = [['Customer', booking.owner_name], ['Animal', booking.animal_name], ['Phone', booking.phone], ['Service', booking.service]].map(([label, value]) => `<tr><td style="padding:10px 14px;color:#65727b;font-weight:700">${label}</td><td style="padding:10px 14px;color:#111">${escapeHtml(value)}</td></tr>`).join('');
+  const result = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ from: BOOKING_NOTIFICATION_FROM, to: [BOOKING_NOTIFICATION_EMAIL], subject: `New booking: ${booking.animal_name}`, html: `<main style="font-family:Arial,sans-serif;background:#f4f6f8;padding:28px"><section style="max-width:540px;background:#fff;margin:auto;padding:28px;border-top:5px solid #ffcf00"><p style="font-size:12px;letter-spacing:1px;font-weight:700">APOK · NEW BOOKING REQUEST</p><h1 style="margin:10px 0 20px;font-size:25px">${escapeHtml(booking.animal_name)} needs an appointment</h1><table style="width:100%;border-collapse:collapse;background:#f6f8f8">${details}</table><p style="margin-top:22px;color:#65727b;font-size:13px">Sign in to the APOK admin dashboard to review this booking.</p></section></main>` }),
+  });
+  if (!result.ok) throw new Error(`Booking email failed: ${await result.text()}`);
+  return true;
+}
+
 let connection;
 async function connectDatabase() {
   if (!MONGODB_URI || !ADMIN_EMAIL || !ADMIN_PASSWORD || !JWT_SECRET) throw new Error('The server environment is not configured.');
@@ -59,6 +75,10 @@ export default async function handler(request, response) {
 
     const admin = requireAdmin(request);
     if (method === 'GET' && path === 'auth/session') return admin ? response.status(200).json({ admin: { email: admin.email } }) : response.status(401).json({ message: 'Please sign in to continue.' });
+    if (method === 'GET' && path === 'auth/notification-status') {
+      if (!admin) return response.status(401).json({ message: 'Please sign in to continue.' });
+      return response.status(200).json({ emailEnabled: ['RESEND_API_KEY', 'BOOKING_NOTIFICATION_EMAIL', 'BOOKING_NOTIFICATION_FROM'].every((name) => Boolean(process.env[name])) });
+    }
     if (method === 'POST' && path === 'auth/change-password') {
       if (!admin) return response.status(401).json({ message: 'Please sign in to continue.' });
       const newPassword = String(body.newPassword || '');
@@ -71,7 +91,9 @@ export default async function handler(request, response) {
     if (method === 'POST' && path === 'bookings') {
       const { owner_name, animal_name, phone, service } = body;
       if (![owner_name, animal_name, phone, service].every((value) => typeof value === 'string' && value.trim())) return response.status(400).json({ message: 'Please complete every booking field.' });
-      return response.status(201).json(await Booking.create({ owner_name, animal_name, phone, service }));
+      const booking = await Booking.create({ owner_name, animal_name, phone, service });
+      try { await notifyAdminByEmail(booking); } catch (error) { console.error(error); }
+      return response.status(201).json(booking);
     }
     if (method === 'GET' && path === 'bookings') {
       if (!admin) return response.status(401).json({ message: 'Please sign in to continue.' });

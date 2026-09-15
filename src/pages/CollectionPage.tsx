@@ -8,7 +8,7 @@ import '../collection-orders.css';
 
 export default function CollectionPage(): ReactElement {
   const [cart, setCart] = useState<Record<number, number>>({});
-  const products = Array.from({ length: 63 }, (_, index) => index + 1);
+  const products = Array.from({ length: 80 }, (_, index) => index + 1);
   const cartItems = products.filter((id) => cart[id]);
   const itemCount = cartItems.reduce((total, id) => total + cart[id], 0);
   const changeQuantity = (id: number, amount: number): void => setCart((current) => {

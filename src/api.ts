@@ -22,6 +22,7 @@ export const api = {
   login: (email: string, password: string) => request<{ admin: { email: string } }>('/api/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
   logout: () => request<void>('/api/auth/logout', { method: 'POST' }),
   session: () => request<{ admin: { email: string } }>('/api/auth/session'),
+  notificationStatus: () => request<{ emailEnabled: boolean }>('/api/auth/notification-status'),
   changePassword: (currentPassword: string, newPassword: string) => request<void>('/api/auth/change-password', { method: 'POST', body: JSON.stringify({ currentPassword, newPassword }) }),
   createBooking: (booking: Omit<Booking, '_id' | 'id' | 'status' | 'created_at'>) => request<Booking>('/api/bookings', { method: 'POST', body: JSON.stringify(booking) }),
   bookings: () => request<Booking[]>('/api/bookings'),
