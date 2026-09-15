@@ -9,6 +9,7 @@ import './mobile.css';
 import './products.css';
 import './navbar.css';
 import './shop.css';
+import './home-cta.css';
 import './catalogue.css';
 import './mobile-tight.css';
 import './bento-fit.css';
