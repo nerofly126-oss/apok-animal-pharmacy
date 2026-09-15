@@ -1,0 +1,9 @@
+.collection-page .catalogue-gallery figure {
+  border: 0 !important;
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.collection-page .catalogue-gallery figure:hover {
+  border: 0 !important;
+  box-shadow: 0 12px 24px rgba(20, 27, 25, .12);
+}
