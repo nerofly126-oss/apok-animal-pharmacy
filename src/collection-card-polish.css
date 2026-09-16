@@ -37,4 +37,4 @@
 .collection-type-tabs button.active { background: var(--yellow); box-shadow: 3px 3px 0 #111; }
 .animal-tile .product-name { display: flex; flex-direction: column; gap: 3px; }
 .animal-tile small { color: #e5e5e5; font: 600 9px 'DM Mono'; letter-spacing: .08em; text-transform: uppercase; }
-@media(max-width: 750px) { .collection-type-tabs { margin-top: 24px; }.collection-type-tabs button { padding: 9px 14px; font-size: 10px; } }
+@media(max-width: 750px) { .collection-type-tabs { margin: 22px 0 26px; }.collection-type-tabs button { padding: 9px 14px; font-size: 10px; } }
