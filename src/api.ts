@@ -5,6 +5,11 @@ export type Booking = {
   animal_name: string;
   phone: string;
   service: string;
+  animal_type?: string;
+  breed?: string;
+  preferred_date?: string;
+  preferred_time?: string;
+  notes?: string;
   status: 'pending' | 'confirmed' | 'cancelled';
   created_at: string;
 };

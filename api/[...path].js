@@ -9,6 +9,11 @@ const bookingSchema = new mongoose.Schema({
   animal_name: { type: String, required: true, trim: true, maxlength: 120 },
   phone: { type: String, required: true, trim: true, maxlength: 40 },
   service: { type: String, required: true, trim: true, maxlength: 120 },
+  animal_type: { type: String, trim: true, maxlength: 80 },
+  breed: { type: String, trim: true, maxlength: 120 },
+  preferred_date: { type: String, trim: true, maxlength: 20 },
+  preferred_time: { type: String, trim: true, maxlength: 40 },
+  notes: { type: String, trim: true, maxlength: 1000 },
   status: { type: String, enum: ['pending', 'confirmed', 'cancelled'], default: 'pending' },
 }, { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } });
 const Admin = mongoose.models.Admin || mongoose.model('Admin', adminSchema);
@@ -20,7 +25,7 @@ function escapeHtml(value) {
 async function notifyAdminByEmail(booking) {
   const { RESEND_API_KEY, BOOKING_NOTIFICATION_EMAIL, BOOKING_NOTIFICATION_FROM } = process.env;
   if (![RESEND_API_KEY, BOOKING_NOTIFICATION_EMAIL, BOOKING_NOTIFICATION_FROM].every(Boolean)) return false;
-  const details = [['Customer', booking.owner_name], ['Animal', booking.animal_name], ['Phone', booking.phone], ['Service', booking.service]].map(([label, value]) => `<tr><td style="padding:10px 14px;color:#65727b;font-weight:700">${label}</td><td style="padding:10px 14px;color:#111">${escapeHtml(value)}</td></tr>`).join('');
+  const details = [['Customer', booking.owner_name], ['Animal', booking.animal_name], ['Animal type', booking.animal_type], ['Breed', booking.breed], ['Phone', booking.phone], ['Service', booking.service], ['Preferred date', booking.preferred_date], ['Preferred time', booking.preferred_time], ['Care note', booking.notes]].filter(([, value]) => value).map(([label, value]) => `<tr><td style="padding:10px 14px;color:#65727b;font-weight:700">${label}</td><td style="padding:10px 14px;color:#111">${escapeHtml(value)}</td></tr>`).join('');
   const result = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
@@ -89,9 +94,9 @@ export default async function handler(request, response) {
       return response.status(204).end();
     }
     if (method === 'POST' && path === 'bookings') {
-      const { owner_name, animal_name, phone, service } = body;
+      const { owner_name, animal_name, phone, service, animal_type, breed, preferred_date, preferred_time, notes } = body;
       if (![owner_name, animal_name, phone, service].every((value) => typeof value === 'string' && value.trim())) return response.status(400).json({ message: 'Please complete every booking field.' });
-      const booking = await Booking.create({ owner_name, animal_name, phone, service });
+      const booking = await Booking.create({ owner_name, animal_name, phone, service, animal_type, breed, preferred_date, preferred_time, notes });
       try { await notifyAdminByEmail(booking); } catch (error) { console.error(error); }
       return response.status(201).json(booking);
     }

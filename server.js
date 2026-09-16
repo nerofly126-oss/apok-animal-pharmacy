@@ -22,6 +22,11 @@ const bookingSchema = new mongoose.Schema({
   animal_name: { type: String, required: true, trim: true, maxlength: 120 },
   phone: { type: String, required: true, trim: true, maxlength: 40 },
   service: { type: String, required: true, trim: true, maxlength: 120 },
+  animal_type: { type: String, trim: true, maxlength: 80 },
+  breed: { type: String, trim: true, maxlength: 120 },
+  preferred_date: { type: String, trim: true, maxlength: 20 },
+  preferred_time: { type: String, trim: true, maxlength: 40 },
+  notes: { type: String, trim: true, maxlength: 1000 },
   status: { type: String, enum: ['pending', 'confirmed', 'cancelled'], default: 'pending' },
 }, { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } });
 const Admin = mongoose.model('Admin', adminSchema);
@@ -63,9 +68,9 @@ app.post('/api/auth/change-password', requireAdmin, async (request, response) =>
 });
 
 app.post('/api/bookings', async (request, response) => {
-  const { owner_name, animal_name, phone, service } = request.body;
+  const { owner_name, animal_name, phone, service, animal_type, breed, preferred_date, preferred_time, notes } = request.body;
   if (![owner_name, animal_name, phone, service].every((value) => typeof value === 'string' && value.trim())) return response.status(400).json({ message: 'Please complete every booking field.' });
-  const booking = await Booking.create({ owner_name, animal_name, phone, service });
+  const booking = await Booking.create({ owner_name, animal_name, phone, service, animal_type, breed, preferred_date, preferred_time, notes });
   response.status(201).json(booking);
 });
 app.get('/api/bookings', requireAdmin, async (_request, response) => response.json(await Booking.find().sort({ created_at: -1 }).lean()));

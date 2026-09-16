@@ -40,9 +40,43 @@ const catalogueCategories = [
   { title: 'Other supplies', description: 'Useful shop and household items.', ids: [122, 124, 125] },
 ] as const;
 
+const animalListings = [
+  { name: 'Golden Retriever puppies', image: '/animals/golden-retriever-puppies.jpg', type: 'Dogs' },
+  { name: 'Doberman Pinscher', image: '/animals/doberman-pinscher.jpg', type: 'Dogs' },
+  { name: 'Neapolitan Mastiff puppies', image: '/animals/neapolitan-mastiff-puppies.jpg', type: 'Dogs' },
+  { name: 'Shih Tzu', image: '/animals/shih-tzu.jpg', type: 'Dogs' },
+  { name: 'British Shorthair kitten', image: '/animals/british-shorthair-kitten.jpg', type: 'Cats' },
+  { name: 'Zebu bull', image: '/animals/zebu-bull.jpg', type: 'Livestock' },
+  { name: 'Bullmastiff puppies', image: '/animals/bullmastiff-puppies.jpg', type: 'Dogs' },
+  { name: 'White Persian kitten', image: '/animals/white-persian-kitten.jpg', type: 'Cats' },
+  { name: 'Bicolour Persian kitten', image: '/animals/bicolour-persian-kitten.jpg', type: 'Cats' },
+  { name: 'German Shepherd', image: '/animals/german-shepherd.jpg', type: 'Dogs' },
+  { name: 'German Shepherd puppy', image: '/animals/german-shepherd-puppy.jpg', type: 'Dogs' },
+  { name: 'Doberman Pinscher puppies', image: '/animals/doberman-pinscher-puppies.jpg', type: 'Dogs' },
+  { name: 'Siberian Husky puppy', image: '/animals/siberian-husky-puppy.jpg', type: 'Dogs' },
+  { name: 'Persian cats', image: '/animals/persian-cats.jpg', type: 'Cats' },
+  { name: 'Day-old chicks', image: '/animals/day-old-chicks.jpg', type: 'Poultry' },
+  { name: 'Cream puppy', image: '/animals/cream-puppy.jpg', type: 'Dogs' },
+  { name: 'Grey kitten', image: '/animals/grey-kitten.jpg', type: 'Cats' },
+  { name: 'Brown puppy', image: '/animals/brown-puppy.jpg', type: 'Dogs' },
+  { name: 'Fluffy puppy', image: '/animals/fluffy-puppy.jpg', type: 'Dogs' },
+  { name: 'Blue-eyed kittens', image: '/animals/blue-eyed-kittens.jpg', type: 'Cats' },
+  { name: 'Cattle herd', image: '/animals/cattle-herd.jpg', type: 'Livestock' },
+  { name: 'Monkey', image: '/animals/monkey.jpg', type: 'Exotic pets' },
+  { name: 'White Persian cat', image: '/animals/white-persian-cat.jpg', type: 'Cats' },
+  { name: 'Ginger kitten', image: '/animals/ginger-kitten.jpg', type: 'Cats' },
+  { name: 'Brown bull', image: '/animals/brown-bull.jpg', type: 'Livestock' },
+  { name: 'White Persian cat (striped shirt)', image: '/animals/white-persian-cat-shirt.jpg', type: 'Cats' },
+  { name: 'Grey tuxedo kitten', image: '/animals/grey-tuxedo-kitten.jpg', type: 'Cats' },
+  { name: 'Neapolitan Mastiff litter', image: '/animals/neapolitan-mastiff-puppies-2.jpg', type: 'Dogs' },
+  { name: 'Ball pythons', image: '/animals/ball-pythons.jpg', type: 'Exotic pets' },
+  { name: 'Black and white puppy', image: '/animals/black-and-white-puppy.jpg', type: 'Dogs' },
+] as const;
+
 export default function CollectionPage(): ReactElement {
   const [cart, setCart] = useState<Record<number, number>>({});
   const [activeCategory, setActiveCategory] = useState<string>(catalogueCategories[0].title);
+  const [collectionTab, setCollectionTab] = useState<'products' | 'animals'>('products');
   const products = [...Array.from({ length: 80 }, (_, index) => index + 1).filter((id) => id !== 3 && id !== 10), ...additionalProductImages.map((_, index) => index + 81)];
   const productName = (id: number): string => id <= 80 ? productNames[id] : additionalProductNames[id - 81];
   const productImage = (id: number): string => id <= 80 ? `/products/catalogue-2026/image-${id}.jpg` : additionalProductImages[id - 81];
@@ -63,6 +97,8 @@ export default function CollectionPage(): ReactElement {
     window.open(`https://wa.me/2348039778902?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
   };
   const renderProduct = (id: number): ReactElement => { const name = productName(id); return <figure className={`tile tile-${id}`} key={id}><img loading="lazy" decoding="async" src={productImage(id)} alt={name}/><figcaption><span className="product-name">{name}</span>{cart[id] ? <span className="quantity-controls"><button type="button" onClick={() => changeQuantity(id, -1)} aria-label={`Remove one ${name}`}>−</button><b>{cart[id]}</b><button type="button" onClick={() => changeQuantity(id, 1)} aria-label={`Add one more ${name}`}>+</button></span> : <button type="button" onClick={() => changeQuantity(id, 1)}>Add to order</button>}</figcaption></figure>; };
+  const enquireAboutAnimal = (name: string): void => { window.open(`https://wa.me/2348039778902?text=${encodeURIComponent(`Hello APOK, I would like to enquire about the ${name}. Please confirm availability, price and pickup or delivery options.`)}`, '_blank', 'noopener,noreferrer'); };
+  const renderAnimal = (animal: typeof animalListings[number]): ReactElement => <figure className="tile animal-tile" key={animal.name}><img loading="lazy" decoding="async" src={animal.image} alt={animal.name}/><figcaption><span className="product-name"><small>{animal.type}</small>{animal.name}</span><button type="button" onClick={() => enquireAboutAnimal(animal.name)}>Enquire</button></figcaption></figure>;
   const visibleCategory = catalogueCategories.find((category) => category.title === activeCategory) || catalogueCategories[0];
-  return <main className="collection-page"><header className="collection-nav"><a className="brand" href="#home">APOK</a><a className="nav-book" href="#home">← Back to site</a></header><section className="collection-hero"><div><p className="eyebrow">Apok Agricultural Production · Awka</p><h1>Pet shop,<br/>properly stocked.</h1></div><div><p>Choose products below, then send your order directly to APOK on WhatsApp.</p></div></section><section className="collection-content" id="collection-grid"><div className="collection-intro"><p className="eyebrow">Order from our collection</p><h2>Pick what you need.</h2><p>Add items to your order. APOK will confirm current stock and pricing on WhatsApp.</p></div><div className="collection-feature"><img loading="lazy" decoding="async" src="/products/catalogue-2026/image-3.jpg" alt="Stainless-steel pet bowls and raised feeders"/><div><p className="eyebrow">In store now</p><h2>Everything for their everyday.</h2><p>Find familiar food brands, care supplies and the little extras pets love.</p></div></div><div className="catalogue-tabs" role="tablist" aria-label="Product categories">{catalogueCategories.map((category) => <button type="button" role="tab" aria-selected={activeCategory === category.title} className={activeCategory === category.title ? 'active' : ''} key={category.title} onClick={() => setActiveCategory(category.title)}>{category.title}</button>)}</div><section className="catalogue-category" key={visibleCategory.title}><div className="catalogue-category-heading"><p className="eyebrow">{visibleCategory.title}</p><p>{visibleCategory.description}</p></div><div className="catalogue-gallery">{visibleCategory.ids.filter((id) => products.includes(id)).map(renderProduct)}</div></section></section>{itemCount > 0 && <aside className="order-bar" aria-live="polite"><span><b>{itemCount}</b> {itemCount === 1 ? 'item' : 'items'} in your order</span><button type="button" onClick={checkout}>Checkout on WhatsApp ↗</button></aside>}</main>;
+  return <main className="collection-page"><header className="collection-nav"><a className="brand" href="#home">APOK</a><a className="nav-book" href="#home">← Back to site</a></header><section className="collection-hero"><div><p className="eyebrow">Apok Agricultural Production · Awka</p><h1>Pet shop,<br/>properly stocked.</h1></div><div><p>Choose products below, then send your order directly to APOK on WhatsApp.</p></div></section><section className="collection-content" id="collection-grid"><div className="collection-intro"><p className="eyebrow">Order from our collection</p><h2>Pick what you need.</h2><p>Add items to your order. APOK will confirm current stock and pricing on WhatsApp.</p></div><div className="collection-type-tabs" role="tablist" aria-label="Collection type"><button type="button" role="tab" aria-selected={collectionTab === 'products'} className={collectionTab === 'products' ? 'active' : ''} onClick={() => setCollectionTab('products')}>Products</button><button type="button" role="tab" aria-selected={collectionTab === 'animals'} className={collectionTab === 'animals' ? 'active' : ''} onClick={() => setCollectionTab('animals')}>Animals</button></div>{collectionTab === 'products' ? <><div className="collection-feature"><img loading="lazy" decoding="async" src="/products/catalogue-2026/image-3.jpg" alt="Stainless-steel pet bowls and raised feeders"/><div><p className="eyebrow">In store now</p><h2>Everything for their everyday.</h2><p>Find familiar food brands, care supplies and the little extras pets love.</p></div></div><div className="catalogue-tabs" role="tablist" aria-label="Product categories">{catalogueCategories.map((category) => <button type="button" role="tab" aria-selected={activeCategory === category.title} className={activeCategory === category.title ? 'active' : ''} key={category.title} onClick={() => setActiveCategory(category.title)}>{category.title}</button>)}</div><section className="catalogue-category" key={visibleCategory.title}><div className="catalogue-category-heading"><p className="eyebrow">{visibleCategory.title}</p><p>{visibleCategory.description}</p></div><div className="catalogue-gallery">{visibleCategory.ids.filter((id) => products.includes(id)).map(renderProduct)}</div></section></> : <section className="catalogue-category animals-catalogue"><div className="catalogue-category-heading"><p className="eyebrow">Animals available</p><p>Selected dogs, cats, livestock and poultry. Ask us about current availability, care and collection.</p></div><div className="catalogue-gallery">{animalListings.map(renderAnimal)}</div></section>}</section>{itemCount > 0 && <aside className="order-bar" aria-live="polite"><span><b>{itemCount}</b> {itemCount === 1 ? 'item' : 'items'} in your order</span><button type="button" onClick={checkout}>Checkout on WhatsApp ↗</button></aside>}</main>;
 }
