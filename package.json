@@ -1,10 +1,10 @@
 {
   "type": "module",
   "scripts": {
-    "dev": "vite --host 0.0.0.0",
+    "dev": "node init && vite --host 0.0.0.0",
     "server": "node --env-file=.env server.js",
-    "start": "node --env-file=.env server.js",
-    "build": "tsc --noEmit && vite build",
+    "start": "node init && node --env-file=.env server.js",
+    "build": "node init && tsc --noEmit && vite build",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
